@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>{{ CUser['first_name'] }} - Dashboard </title>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard-stylesheet.css') }}">
+	<link rel="icon" href="{{ url_for('static', filename='media/icons/TT_logo_90.png') }}">
+</head>
+<body>
+	<div class="screen" id="home-screen">
+		<header>
+			<!-- <h1>&nbsp;</h1> -->
+			<h1 style="font-size: 50px;"><img src="" alt="">Tasklify</h1>
+		</header>
+		<!-- <h1 style="margin: 10px 10px 30px 10px; font-size: 30px; font-family: sans-serif; color: black; -webkit-background-clip: initial; -webkit-text-fill-color: black; background: transparent;">Welcome,</h1> -->
+
+		<div style="display: grid; place-items: center;">
+			<div class="investment-board">
+				<div class="investment-board-lower">
+					<h1 align="center" style="color: white;"><span class="currency">TT </span><span class="money-at-hand">{{ Thousandify(CUser['wallet_balance']) }}</span></h1>
+
+					<button class="nj-button-2" id="withdraw-button">Withdraw</button>
+				</div>
+
+				<div id="modal-recieve_tt_task" class="modal">
+				    <div class="modal-content" style="display: grid; place-items: center;">
+				        <span class="close-modal" id="close-recieve_tt_task-menu" style="color: black;">&times;</span>
+				        <br>
+				        <h1 class="modal-title">Receive TT points</h1>
+				        	
+				        <div style="display: flex; align-items: center; justify-content: center; background: #d695c2; aspect-ratio: 26/9; width: 80%; padding: 10px; border-radius: 00px; color: black;">
+				        	<h4>{{ CUser['user_id'] }}</h4>
+				        </div>
+
+				        <p align="left" style="color: black; margin:20px;">Tell the sender to transfer points to your Wallet using your <b>Wallet ID</b></p>
+				    </div>
+				</div>
+
+				<div id="modal-send_tt_task" class="modal">
+				    <div class="modal-content" style="display: grid; place-items: center;">
+				        <span class="close-modal" id="close-send_tt_task-menu" style="color: black;">&times;</span>
+				        <br>
+				        <h1 class="modal-title">Send TT points</h1>
+				        	
+				        <form id="send_form" action="/send-points" method="POST" style="width: 100%;">
+				        	<input type="number" class="nj-input" name="amount" id="send_amount" placeholder="TT 0.0" required>
+				        	<input type="text" class="nj-input" name="rec_wallet_address" id="rec_wallet_address" placeholder="31-digit Recipient Wallet Address" required>
+				        	<p id="status_text_send" style="margin: 10px; color: red;"></p>
+
+				        	<button class="nj-button" style="justify-content: center; width: 100%;">Send</button>
+				        </form>
+
+				        <p align="left" style="color: black; margin:20px;">Action is <b>irreversible!</b></p>
+				    </div>
+				</div>
+
+				<div class="investment-board-upper">
+					<button style="width: 90%; margin: 10px; justify-content: center; border: 2px solid #bc0794; color: #bc0794; background: white;" class="nj-secondary-button" id="Send-tt">Send TT</button>
+					<button style="width: 90%; margin: 10px; justify-content: center; border: 2px solid white;" class="nj-secondary-button" id="Recieve-tt">Receive TT</button>
+				</div>
+
+				<script type="text/javascript">
+					modal_receieve_tt_task = document.querySelector("#modal-recieve_tt_task")
+					trigger_modal_receieve_tt_task = document.querySelector("#Recieve-tt")
+					close_modal_receieve_tt_task = document.querySelector("#close-recieve_tt_task-menu")
+
+					trigger_modal_receieve_tt_task.addEventListener('click', ()=>{
+						modal_receieve_tt_task.style.display = "block"
+					})
+					close_modal_receieve_tt_task.addEventListener('click', ()=>{
+						modal_receieve_tt_task.style.display = "none"
+					})
+
+					modal_send_tt_task = document.querySelector("#modal-send_tt_task")
+					trigger_modal_send_tt_task = document.querySelector("#Send-tt")
+					close_modal_send_tt_task = document.querySelector("#close-send_tt_task-menu")
+
+					trigger_modal_send_tt_task.addEventListener('click', ()=>{
+						modal_send_tt_task.style.display = "block"
+					})
+					close_modal_send_tt_task.addEventListener('click', ()=>{
+						modal_send_tt_task.style.display = "none"
+					})
+
+					const form_ = document.querySelector("#send_form")
+
+					function updateStatusTextSend(element, _display, text) {
+						element.style.display = _display
+						element.innerHTML = text
+						setTimeout(()=>{
+							element.style.display = "none"
+						}, 5000)
+					}
+
+					form_.addEventListener('submit', (e) => {
+						e.preventDefault();
+
+						const recAddress = document.querySelector("#rec_wallet_address").value
+						const availableBalanceSend = document.querySelector("#available_balance").value
+						const amountToWithdrawSend = document.querySelector("#send_amount").value
+						let statusSend = document.querySelector("#status_text_send")
+
+						if (recAddress.length < 31) {
+							updateStatusTextSend(statusSend, "block", 'Recipient Wallet Address Less than 31 digits')
+							return;
+						}
+						if (recAddress.length > 31) {
+							updateStatusTextSend(statusSend, "block", 'Account Number More than 10 digits')
+							return;
+						}
+						if (amountToWithdrawSend == "" || amountToWithdrawSend == "0") {
+							updateStatusTextSend(statusSend, "block", "Can't withdraw TT 0")
+							return;
+						}
+						if (parseInt(amountToWithdrawSend) > parseInt(availableBalanceSend)) {
+							updateStatusTextSend(statusSend, "block", 'Insufficient Funds')
+							return;
+						}
+
+						form_.submit();
+					})
+				</script>
+
+			</div>
+		</div>
+		
+		<div class="transaction-options" style="overflow-y: auto; overflow-x: hidden; height: 500px; background: #e3e4e3;">
+			
+			<ul class="task-container" style="padding: 0; width: 95%;">
+			<h1 style="margin: 10px 10px 30px 10px; font-size: 30px; font-family: sans-serif; color: black; -webkit-background-clip: initial; -webkit-text-fill-color: black; background: transparent;" align="center">Tasks</h1>
+				{% if Tasks %}
+					{% for Task in Tasks %}
+						{% if ToInt(CUser['id']) in PythonEval(Task['users_id_done']) %}
+							<li style="list-style: none; background: #ffd0f8; margin-top: 10px; width: 100%; border-radius: 0px; display: flex; align-items: center; justify-content: space-between; opacity: 0.4;">
+								{% if Task['image_raw'] == "Default-Logo" %}
+									<img src="{{ url_for('static', filename='media/icons/TT_logo_90.png') }}" style="background: white; aspect-ratio: 1/1; width: 40px; padding: 20px; object-fit: cover;">
+								{% else %}
+									<img src="data:{{ getMIME( Task['image_raw'] ) }};base64,{{ Task['image_raw'] }}" style="background: white; aspect-ratio: 1/1; width: 40px; padding: 20px; object-fit: cover;">
+								{% endif %}
+								<div style="width: 40%; margin-left: 20px;">
+									<p align="left">{{ Task['name'] }}</p>
+								</div>
+								<span style="background: #bc0794; padding: 5px; color: white; font-size: 14px;">TT {{ Thousandify(Task['points']) }}</span>
+								<span style="padding: 10px">{{ Task['task_type'] }}</span>
+							</li>
+						{% else %}
+							<a href="/task/{{ RandomID() }}/{{ Task['id'] }}/{{ RandomID() }}" style="text-decoration: none; color: black;">
+								<li style="list-style: none; background: #ffd0f8; margin-top: 10px; width: 100%; border-radius: 0px; display: flex; align-items: center; justify-content: space-between;">
+									{% if Task['image_raw'] == "Default-Logo" %}
+										<img src="{{ url_for('static', filename='media/icons/TT_logo_90.png') }}" style="background: white; aspect-ratio: 1/1; width: 40px; padding: 20px; object-fit: cover;">
+									{% else %}
+										<img src="data:{{ getMIME( Task['image_raw'] ) }};base64,{{ Task['image_raw'] }}" style="background: white; aspect-ratio: 1/1; width: 40px; padding: 20px; object-fit: cover;">
+									{% endif %}
+									<div style="width: 40%; margin-left: 20px;">
+										<p align="left">{{ Task['name'] }}</p>
+									</div>
+									<span style="background: #bc0794; padding: 5px; color: white; font-size: 14px;">TT {{ Thousandify(Task['points']) }}</span>
+									<span style="padding: 10px">{{ Task['task_type'] }}</span>
+								</li>
+							</a>
+						{% endif %}
+					{% endfor %}
+				{% else %}
+					<style>
+						.task-container{
+							height: fit-content;
+						}
+					</style>
+					<p align="center">No Tasks for now</p>
+				{% endif %}
+			</ul>
+		</div>
+
+		{% if CUser['user_type'] == "admin" %}
+			<div id="modal-create_task" class="modal">
+			    <div class="modal-content">
+			        <span class="close-modal" id="close-create_task-menu">&times;</span>
+			        <br>
+			        <h1 class="modal-title">Create Task</h1>
+			        	
+			        <form action="/create-task" method="POST" enctype="multipart/form-data">
+			        	<div style="display: flex; align-items: center; justify-content: space-between; width: 80%;">
+			        		<p>Task Logo/Image</p>
+			        		<input type="file" name="task_image" class="nj-input">
+			        	</div>
+			        	<input type="text" name="task_name" class="nj-input" placeholder="Task Name" required>
+
+			        	<select name="task_type" class="nj-input">
+			        		<option>Select a Task Type</option>
+			        		<option value="Link">Link Click - Clicking of links</option>
+			        		<option value="SME">SME - Social Media Engagement</option>
+			        		<!-- <option value="AppGames">In-App Game</option> -->
+			        	</select>
+
+			        	<input type="text" name="task_link" class="nj-input" placeholder="Task URL" required>
+
+			        	<input type="number" name="task_points" class="nj-input" placeholder="Task Points in TT" required>
+
+			        	<textarea name="description" class="nj-input" placeholder="Task Description (Optional)" style="height: 100px;"></textarea>
+
+			        	<button class="nj-button" style="justify-content: center;">Create +</button>
+			        </form>
+			    </div>
+			</div>
+
+
+			<div style="display: grid; place-items: center;">
+				<button class="nj-secondary-button" id="create-task" style="width: 90%; margin: 10px; justify-content: center; border: 2px solid #bc0794; color: #bc0794;">Create Task</button>
+			</div>
+
+			<script type="text/javascript">
+				modal_create_task = document.querySelector("#modal-create_task")
+				trigger_modal_create_task = document.querySelector("#create-task")
+				close_modal_create_task = document.querySelector("#close-create_task-menu")
+
+				trigger_modal_create_task.addEventListener('click', ()=>{
+					modal_create_task.style.display = "block"
+				})
+				close_modal_create_task.addEventListener('click', ()=>{
+					modal_create_task.style.display = "none"
+				})
+			</script>
+
+			<hr>				
+			<h1 style="margin: 10px 10px 30px 10px; font-size: 30px; font-family: sans-serif; color: black; -webkit-background-clip: initial; -webkit-text-fill-color: black; background: transparent;" align="center">Withdrawal Requests</h1>
+			<div style="overflow-y: auto; overflow-x: hidden; height: 500px; background: #e3e4e3;" class="transaction-options">
+
+				{% if WithdrawalRequests %}
+					<ul style="padding: 0; width: 95%;">
+						{% for WithdrawalRequest in WithdrawalRequests %}
+							{% if WithdrawalRequest['status'] == "Pending" %}
+								<div id="modal-{{ WithdrawalRequest['id'] }}_task" class="modal">
+								    <div class="modal-content">
+								        <span class="close-modal" id="close-{{ WithdrawalRequest['id'] }}_task-menu">&times;</span>
+								        <br>
+								        <h1 class="modal-title">Withdrawal Request Detail</h1>
+								        <hr>
+								        <p align="left"><b>Beneficiary Name</b>: {{ WithdrawalRequest['user_first_name'] }} {{ WithdrawalRequest['user_last_name'] }}</p>
+								        <p align="left"><b>Beneficiary Bank</b>: {{ WithdrawalRequest['bank'] }} </p>
+								        <p align="left"><b>Beneficiary Account Number</b>: {{ WithdrawalRequest['account_number'] }} </p>
+								        <p align="left"><b>Beneficiary Username</b>: {{ WithdrawalRequest['username'] }} </p>
+								        <p align="left"><b>Beneficiary Wallet ID</b>: {{ WithdrawalRequest['user_wallet_address'] }} </p>
+								        <p align="left"><b>Date</b>: {{ DTK.clean_date(WithdrawalRequest['datestamp']) }} </p>
+								        <p align="left"><b>Time</b>: {{ WithdrawalRequest['timestamp'] }} </p>
+								        <p align="left"><b>Transaction ID</b>: {{ WithdrawalRequest['tid'] }} </p>
+								        
+								        <br>
+								        <br>
+								        <hr>
+								        <br>
+								        <h2 align="left">Sign Withdrawal</h2>
+								        <form action="/sign-withdrwal" method="POST" style="width: 100%; display: flex; align-items: center; justify-content: space-between;">
+								        	<input type="hidden" name="withdrawal_id" value="{{ WithdrawalRequest['id'] }}">
+								        	<button class="nj-button" value="success" name="sign_statement" style="justify-content: center;">Success</button>
+								        	<button class="nj-secondary-button" value="failed" name="sign_statement" style="justify-content: center; color: #bc0794; border: 2px solid #bc0794;">Failed</button>
+								        </form>
+								    </div>
+								</div>
+
+								<li style="list-style: none; background: #ffd0f8; margin-top: 10px; width: 100%; border-radius: 0px; display: flex; align-items: center; justify-content: space-between;" id="wth-{{ WithdrawalRequest['id'] }}-task">
+									<img src="{{ url_for('static', filename='media/icons/icons8-stack-of-money-48.png') }}" style="background: white; aspect-ratio: 1/1; width: 40px; padding: 20px; object-fit: cover;">
+									<div style="width: 40%; margin-left: 20px;">
+										<p align="left">{{ WithdrawalRequest['account_number'] }}</p>
+									</div>
+									<span style="background: #bc0794; padding: 5px; color: white; font-size: 14px;">NGN {{ Thousandify(WithdrawalRequest['amount']) }}</span>
+									<span style="padding: 10px">{{ WithdrawalRequest['bank'] }}</span>
+								</li>
+
+								<script type="text/javascript">
+									modal_{{ WithdrawalRequest['id'] }}_task = document.querySelector("#modal-{{ WithdrawalRequest['id'] }}_task")
+									trigger_modal_{{ WithdrawalRequest['id'] }}_task = document.querySelector("#wth-{{ WithdrawalRequest['id'] }}-task")
+									close_modal_{{ WithdrawalRequest['id'] }}_task = document.querySelector("#close-{{ WithdrawalRequest['id'] }}_task-menu")
+
+									trigger_modal_{{ WithdrawalRequest['id'] }}_task.addEventListener('click', ()=>{
+										modal_{{ WithdrawalRequest['id'] }}_task.style.display = "block"
+									})
+									close_modal_{{ WithdrawalRequest['id'] }}_task.addEventListener('click', ()=>{
+										modal_{{ WithdrawalRequest['id'] }}_task.style.display = "none"
+									})
+								</script>
+							{% else %}
+								{{ pass }}
+							{% endif %}
+						{% endfor %}
+					</ul>
+				{% else %}
+					<p>No withdrawal request for now!</p>
+				{% endif %}
+
+			</div>
+		{% else %}
+			{{ pass }}
+		{% endif %}
+
+		<hr>
+
+		<div class="transaction-options" style="display: grid; place-items: center;">
+			<h2>Referral Link</h2>
+			<div style="display: flex; align-items: center; justify-content: center;">
+				<input style="width: 100%;" type="text" class="nj-input" value="https://tasklify.vercel.app/signup-refer/{{ CUser['username'] }}">
+				<button style="width: 50%; text-align: center;" class="nj-button">Copy</button>
+			</div>
+			<div style="display: flex; align-items: center; justify-content: space-between; width: 100%; margin: 10px;">
+				<div style="aspect-ratio: 1/1; width: 150px; background: linear-gradient(114deg, #ff7de2, #ffa0eadb); border-radius: 00px; height: 150px;">
+					<h2 style="font-size: 30px; font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; margin-left: 10px;">{{ referral_data[0] }}</h2> 
+					<p style="margin: 10px; font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;">Tasklify Referral(s)</p> 
+				</div>
+				<div style="aspect-ratio: 1/1; width: 170px; background: linear-gradient(114deg, #ff7de2, #ffa0eadb); border-radius: 00px; height: 150px;">
+					<h2 style="font-size: 27px; font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; margin-left: 10px;">TT {{ Thousandify(referral_data[1]) }}</h2>
+					<p style="margin: 10px; font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;">Referral Earning(s)</p>
+				</div>
+			</div>
+			<p style="margin: 10px;">Referral earnings are automatically withdrawn to your<br>wallet when someone signups with your referral link.</p>
+
+		</div>
+
+
+
+		<div class="transaction-options" style="display: grid; place-items: center;">
+			<h2>Referral(s)</h2>
+			<p style="margin: 10px;">Refer your friends to Tasklify and get <b>TT 1,000</b> and earn 10% of their referrals earning.</p>
+			
+		</div>
+
+		<br>
+		<br>
+		<button onclick="goToRoute('/logout', ['GET', {}])" class="nj-button" style="width: 90%; justify-content: center;">Logout</button>
+		<br>
+		<br>
+		<!-- <button class="nj-button" onclick="goToRoute('/logout', ['GET', {}])">Logout</button> -->
+	</div>
+
+	<div class="screen" id="help-screen" style="display: none;">
+		<div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+			<span id="withdraw-button-2" style="font-size: 20px; border-bottom: 2px solid #bc0794; color: rgb(188, 7, 148); padding: 10px 0px 3px 0px; margin-left: 10px;">« Withdraw</span>
+			<h1>Help</h1>
+			<p id="help-button-2"><img src="{{ url_for('static', filename='media/icons/icons8-help-48.png') }}" alt="" style="border-radius: 00pc;"></p>
+		</div>
+
+		<div class="contact-card contact-call">
+			<a href="tel:08000670900">
+				<div class="contact-call-card">
+					<img src="{{ url_for('static', filename='media/icons/icons8-call-48.png') }}">
+					<p align="left" style="color: white;">08000670900</p>
+				</div>
+			</a>
+		</div>
+
+		<div class="contact-card contact-email">
+			<a href="mailto:contact-ng@tasklify.com">
+				<div class="contact-email-card">
+					<img src="{{ url_for('static', filename='media/icons/icons8-email-48.png') }}">
+					<p align="left" style="color: white;">contact-ng@tasklify.com</p>
+				</div>
+			</a>
+		</div>
+
+		
+
+		<div id="html-break">{{ HTMLBreak_ }}</div>
+
+	</div>
+
+	<form action="/withdrawBalance" method="POST" class="screen" id="withdraw-screen" style="display: none;">
+		<div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+			<span id="home-button" style="font-size: 20px; border-bottom: 2px solid #bc0794; color: rgb(188, 7, 148); padding: 10px 0px 3px 0px; margin-left: 10px;">« Home</span>
+			<h1>Withdraw</h1>
+			<p id="help-button"><img src="{{ url_for('static', filename='media/icons/icons8-help-48.png') }}" alt="" style="border-radius: 00pc;"></p>
+		</div>
+
+		<input type="number" name="account_number" style="width: 90%;" id="account_number" class="nj-input" placeholder="10-Digit Account Number">
+		<select name="bank" class="nj-input" style="width: 90%;" id="bank">
+			<option value="None">Select Destination Bank</option>
+			<option>Moniepoint MFB</option>
+			<option>Palmpay</option>
+			<option>Kuda</option>
+			<option>Parkway ReadyCash</option>
+			<option>Opay</option>
+			<option>Firstbank PLC</option>
+			<option>Access Bank</option>
+			<option>Fidelity Bank</option>
+			<option>Gurantee Trust Bank (GTB)</option>
+			<option>Ecobank PLC</option>
+			<option>Wema Bank</option>
+			<!-- <option></option> -->
+		</select>
+
+		<div style="width: 100%; display: flex; align-items: center; justify-content: space-between;">
+			<input type="hidden" name="CEx" value="{{ CurrencyExchange }}">
+			<input type="hidden" id="available_balance" value="{{ CUser['wallet_balance'] }}">
+			<!-- <input type="hidden" id="wpassword" value="{{ CUser['wallet_balance'] }}"> -->
+			<input style="width: 50%;" type="number" name="amount" id="amount" class="nj-input" placeholder="TT 0.0">
+			<input style="width: 50%;" type="number" name="amount_ngn" class="nj-input" placeholder="TT {{ Thousandify(CUser['wallet_balance']) }}" disabled style="opacity: 0.4;">
+		</div>
+		<!-- <input type="number" name="account_number" style="width: 90%;" id="account_number" class="nj-input" placeholder="10-Digit Account Number"> -->
+		<p id="status_text_wth" style="color: red; margin: 10px; font-family: 'Lucida Sans';"></p>
+		<button style="outline: none; background: #bc0794; border: 0; /*border-radius: 00px;*/ width: 90%; padding: 10px; color: aliceblue; margin: 10px;">Start Withdrawal</button>
+
+		<h2 style="margin: 10px;">Conversion Rates</h2>
+		<div style="display: flex; align-items: center; justify-content: space-around; background: white; margin: 10px; border-radius: 00px;">
+			<p style="font-weight: 800; font-size: 40px; font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;">TT 1</p>
+			<p style="font-weight: 800; font-size: 40px; font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;">=</p>
+			<p style="font-weight: 800; font-size: 40px; font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;">NGN {{ CurrencyExchange }} </p>
+		</div>
+		<p style="margin: 10px;">Updated {{ CurrentTime }} on {{ DTK.clean_date(CurrentDate) }} </p>
+
+		<hr>
+		<br>
+		<br>
+		<h2 style="margin: 10px;">Withdrawal History</h2>
+		{% if MyWithdrawalRequests %}
+			<ul style="padding: 10px; width: 95%;">
+				{% for MyWithdrawalRequest in MyWithdrawalRequests %}
+					<div id="modal-{{ MyWithdrawalRequest['id'] }}_task" class="modal">
+					    <div class="modal-content">
+					        <span class="close-modal" id="close-{{ MyWithdrawalRequest['id'] }}_task-menu">&times;</span>
+					        <br>
+					        <h1 class="modal-title">Withdrawal Request Detail</h1>
+					        <hr>
+					        <p align="left"><b>Beneficiary Name</b>: {{ MyWithdrawalRequest['user_first_name'] }} {{ MyWithdrawalRequest['user_last_name'] }}</p>
+					        <p align="left"><b>Beneficiary Bank</b>: {{ MyWithdrawalRequest['bank'] }} </p>
+					        <p align="left"><b>Beneficiary Account Number</b>: {{ MyWithdrawalRequest['account_number'] }} </p>
+					        <p align="left"><b>Date</b>: {{ DTK.clean_date(MyWithdrawalRequest['datestamp']) }} </p>
+					        <p align="left"><b>Time</b>: {{ MyWithdrawalRequest['timestamp'] }} </p>
+					        <p align="left"><b>Transaction ID</b>: {{ MyWithdrawalRequest['tid'] }} </p>
+					        {% if MyWithdrawalRequest['status'].capitalize() == "Failed" %}
+					        	<p align="left" style="font-weight: 800; color: red; font-size: 25px;"><b style="color: black;">Status:</b> {{ MyWithdrawalRequest['status'].capitalize() }} </p>
+					        {% elif MyWithdrawalRequest['status'].capitalize() == "Success" %}
+					        	<p align="left" style="font-weight: 800; color: green; font-size: 25px;"><b style="color: black;">Status:</b> {{ MyWithdrawalRequest['status'].capitalize() }} </p>
+					        {% else %}
+					        	<p align="left" style="font-weight: 800; color: orange; font-size: 25px;"><b style="color: black;">Status:</b> {{ MyWithdrawalRequest['status'].capitalize() }} </p>
+					        {% endif %}
+					    </div>
+					</div>
+
+					<li style="list-style: none; background: #ffd0f8; margin-top: 10px; width: 100%; border-radius: 0px; display: flex; align-items: center; justify-content: space-between;" id="wth-{{ MyWithdrawalRequest['id'] }}-task">
+						
+						<div style="width: 40%; margin-left: 20px;">
+							<p align="left">{{ DTK.clean_date(MyWithdrawalRequest['datestamp']) }}</p>
+						</div>
+						<span style="background: #bc0794; padding: 5px; color: white; font-size: 14px;">TT {{ Thousandify(RoundFloat(ToFloat(MyWithdrawalRequest['amount']) / CurrencyExchange, 2)) }}</span>
+						<span style="padding: 10px">{{ MyWithdrawalRequest['status'] }}</span>
+					</li>
+
+					<script type="text/javascript">
+						modal_{{ MyWithdrawalRequest['id'] }}_task = document.querySelector("#modal-{{ MyWithdrawalRequest['id'] }}_task")
+						trigger_modal_{{ MyWithdrawalRequest['id'] }}_task = document.querySelector("#wth-{{ MyWithdrawalRequest['id'] }}-task")
+						close_modal_{{ MyWithdrawalRequest['id'] }}_task = document.querySelector("#close-{{ MyWithdrawalRequest['id'] }}_task-menu")
+
+						trigger_modal_{{ MyWithdrawalRequest['id'] }}_task.addEventListener('click', ()=>{
+							modal_{{ MyWithdrawalRequest['id'] }}_task.style.display = "block"
+						})
+						close_modal_{{ MyWithdrawalRequest['id'] }}_task.addEventListener('click', ()=>{
+							modal_{{ MyWithdrawalRequest['id'] }}_task.style.display = "none"
+						})
+					</script>
+				{% endfor %}
+			</ul>
+		{% else %}
+			<p style="margin: 10px;">No withdrawal request for now!</p>
+		{% endif %}
+
+		<h3 style="margin: 10px;"><u>Possible Causes for a Failed Withdrawal:</u></h3>
+		<ol>
+			<li>Inaccurate Details such as Account Number and Bank Name</li>
+			<li>Information Mismatch such as Data on Tasklify not matching Data on Bank profile</li>
+			<!-- <li></li> -->
+		</ol>
+
+
+		<div id="html-break">{{ HTMLBreak_('6') }}</div>
+	</form>
+
+	<div class="screen" id="settings-screen" style="display: none;">
+		<h1>Settings</h1>
+
+		<div id="html-break">{{ HTMLBreak_ }}</div>
+	</div>
+
+
+<!-- <button id="home-button" style="display: none;">Home</button> -->
+<button id="settings-button" style="display: none;">Settings</button>
+<!-- <button id="help-button" style="display: none;">Help</button> -->
+
+<script>
+	// HTML Breaks logic
+	break_element = document.querySelectorAll("#html-break")
+
+	for (let i = 0; i < break_element.length; i++) {
+		break_element[i].innerHTML = break_element[i].textContent
+	}
+	current_screen = "{{ screen_id }}"
+</script>
+<script src="{{ url_for('static', filename='js/App.js') }}"></script>
+<script src="{{ url_for('static', filename='js/Screen_Manager.js') }}"></script>
+
+</body>
+</html>

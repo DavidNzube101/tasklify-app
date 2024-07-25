@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Login - Naijaversal</title>
+	<link rel="icon" href="{{ url_for('static', filename='media/logo-white-150.png') }}">
+	
+	<style type="text/css">
+		body{
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			height: 100vh;
+			font-family: Roboto, sans-serif;
+			background: black;
+		}
+		.board{
+			border-radius: 0px;
+			padding: 10px;
+			width: 90%;
+			background: rgb(0, 0, 0);
+			color: white;
+		}
+		.board h1{
+			font-weight: bolder;
+			font-size: 50px;
+			margin-left: 10px;
+			background: linear-gradient(to left, #fffefe, #ffc3f2);
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+		}
+		.board input{
+			background: #e8eae6;
+			padding: 10px;
+			color: black;
+			margin: 10px;
+			width: 90%;
+			border-radius: 0px;
+			outline: none;
+			border: 0;
+		}
+		.board button{
+			text-align: center;
+			padding: 10px;
+			margin-left: 10px;
+			transition: 0.5s ease-in-out;
+			border-radius: 0px;
+			border: 0;
+			width: 90%;
+			outline: 0;
+			background: #bc0794;
+			color: white;
+			cursor: pointer;
+		}
+		.board button:hover{
+			scale: 1.07;
+		}
+		.inforamtion-label, .inforamtion-label-success, .inforamtion-label-error{
+			margin-left: 10px;
+			padding: 10px;
+			background: #ff650085;
+			color: #ff5a00;
+			border-radius: 0px;
+		}
+		.inforamtion-label-success {
+			background: #bc0794;
+			color: rgb(144, 2, 160);
+		}
+		.inforamtion-label-error {
+			background: #ff000078;
+			color: red;
+		}
+		@media (max-width: 500px) {
+			.board{
+				padding-left: 50px;
+				padding-right: 50px;
+			}
+		}
+	</style>
+</head>
+<body>
+	<form action="/login" method="POST">
+		<div class="board">
+			<h1>Login</h1>
+			{% if "Error" in status[1] %}
+				<div class="inforamtion-label inforamtion-label-error">{{ status[0] }}</div>
+			{% elif "None" == status[1] %}
+				{{ pass }}
+			{% else %}
+				<div class="inforamtion-label">{{ status[0] }}</div>
+			{% endif %}
+			<br>
+			<br>
+			<input type="text" name="email" placeholder="Your Email" required>
+			<br>
+			<br>
+			<input type="password" name="password" placeholder="Your Password" required>
+			<br>
+			<p style="margin-left: 10px; font-size: 13px; cursor: pointer; text-decoration: underline; color: #bc0794;" onclick="goToRoute('/signup', ['GET', {}])">Don't have an account? Create one</p>
+			<br>
+			<button>Login</button>
+		</div>
+	</form>	
+
+<script src="{{ url_for('static', filename='js/App.js') }}"></script>
+</body>
+</html>

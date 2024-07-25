@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Tasklify - {{ Task['name'] }}</title>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/dashboard-stylesheet.css') }}">
+</head>
+<body>
+	<div class="screen" id="help-screen">
+		<div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+			<span id="withdraw-button-2" style="font-size: 20px; border-bottom: 2px solid #bc0794; color: rgb(188, 7, 148); padding: 10px 0px 3px 0px; margin-left: 10px;">
+				<a href="/dashboard" style="text-decoration: none;">
+					« Home
+				</a>
+			</span>
+			<h1>Task</h1>
+			<p id="help-button-2">
+				<a href="/dashboard/6" style="text-decoration: none;">
+					<img src="{{ url_for('static', filename='media/icons/icons8-help-48.png') }}" alt="" style="border-radius: 10pc;">
+				</a>
+			</p>
+		</div>
+
+		<div style="margin: 10px; font-family: 'Lucida Sans';">
+			<h1></h1>
+			<!-- <img src="{{ url_for('static', filename='media/icons/TT_logo_90.png') }}" style="object-fit: cover; aspect-ratio: 16/9; border-radius: 0px; width: 100%; border: 1px solid #bc0794;"> -->
+			<img src="data:{{ getMIME( Task['image_raw'] ) }};base64,{{ Task['image_raw'] }}" style="object-fit: cover; aspect-ratio: 16/9; border-radius: 0px; width: 100%; border: 1px solid #bc0794;">
+			<p><b>Name</b>: {{ Task['name'] }}</p>
+			<p><b>Reward</b>: TT {{ Thousandify(Task['points']) }} </p>
+			<p><b>Expires</b>: {{ Task['expiry_date'] }} </p>
+			<p><b>Days remaining</b>: {{ DTK.calculate_difference(Task['datestamp'], Task['expiry_date']) }} days</p>
+			<p><b>Type</b>: {{ Task['task_type'] }}</p>
+			{% if Task['description'] == "" %}
+				<p><b>Description</b>: No description </p>
+			{% else %}
+				<p><b>Description</b>: {{ Task['description'] }} </p>
+			{% endif %}
+
+			<br>
+			{% if CUser['user_type'] == 'admin' %}
+				<div style="width: 100%; display: flex; align-items: center; justify-content: center;">
+					<button class="nj-input" style="background: #bc0794; color: white;" onclick="goToRoute('/withdrawTaskBalance/{{ Task['id'] }}/2024072435Y37C515001357Am8x2p9z2024072435Y37C515001357Am8x2p9z2024072435Y37C515001357Am8x2p9z2024072435Y37C515001357Am8x2p9z2024072435Y37C515001357Am8x2p9z', ['GET', {}])">Withdraw Task Points</button>
+				</div>
+			{% else %}
+				{% if TaskIsDone >= 0 and TaskIsDone <= 20 %}
+					<div style="width: 100%; background: #da8585; color: red; height: 40px; display: flex; align-items: center; justify-content: center;">Not Completed</div>
+					<div style="width: 100%; display: flex; align-items: center; justify-content: center;" id="b1-cont">
+						<button class="nj-secondary-button" id="check_task_button" style="display: none; justify-content: center; border-radius: 0px; background: white; border: 2px solid #bc0794; color: #bc0794;">
+							<a href="/task/2024072435Y37C515001357Am8x2p9z2024072435Y37C515001357Am8x2p9z2024072435Y37C515001357Am8x2p9z2024072435Y37C515001357Am8x2p9z2024072435Y37C515001357Am8x2p9z/{{ Task['id'] }}" style="text-decoration: none; color: #bc0794;">
+								Check If Done
+							</a>
+						</button>
+						<button class="nj-input" style="background: #bc0794; color: white;">
+							<a href="{{ Task['task_link'] }}" target="_blank" style="text-decoration: none; color: white;" id="start_task">Start Task</a>
+						</button>
+					</div>
+					<script type="text/javascript">
+						document.querySelector("#start_task").addEventListener('click', ()=>{
+							document.querySelector("#b1-cont").style.justifyContent = "space-between"
+							document.querySelector("#check_task_button").style.display = 'block'
+						})
+					</script>
+				{% elif TaskIsDone > 20 and TaskIsDone < 40 %}
+					<div style="width: 100%; background: #94da85; color: #0d8725; height: 40px; display: flex; align-items: center; justify-content: center;">Completed</div>
+					<div style="width: 100%; display: flex; align-items: center; justify-content: center;">
+						<button class="nj-input" style="background: #bc0794; color: white;" onclick="goToRoute('/withdrawTaskBalance/{{ Task['id'] }}/2024072435Y37C515001357Am8x2p9z2024072435Y37C515001357Am8x2p9z2024072435Y37C515001357Am8x2p9z2024072435Y37C515001357Am8x2p9z2024072435Y37C515001357Am8x2p9z', ['GET', {}])">Withdraw Task Points</button>
+					</div>
+				{% else %}
+					<div style="width: 100%; background: #ff830085; color: #9c5707; height: 40px; display: flex; align-items: center; justify-content: center;">Recheck</div>
+					<div style="width: 100%; display: flex; align-items: center; justify-content: center;">
+						<button class="nj-secondary-button" style="justify-content: center; border-radius: 0px; background: white; border: 2px solid #bc0794; color: #bc0794;">
+							<a href="/task/2024072435Y37C515001357Am8x2p9z2024072435Y37C515001357Am8x2p9z2024072435Y37C515001357Am8x2p9z2024072435Y37C515001357Am8x2p9z2024072435Y37C515001357Am8x2p9z/{{ Task['id'] }}" style="text-decoration: none; color: #bc0794;">
+								Check If Done
+							</a>
+						</button>
+					</div>
+				{% endif %}
+			{% endif %}
+			<br>
+			
+		</div>
+
+		
+
+		<div id="html-break">{{ HTMLBreak_ }}</div>
+
+	</div>
+
+<script src="{{ url_for('static', filename='js/App.js') }}"></script>
+</body>
+</html>
