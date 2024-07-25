@@ -5,8 +5,8 @@ from . import __trash
 # CON_KEY = "david.nzube.official22@gmail.com/david.nzube.official22@gmail.com/8x7bty112(8jIj8*22@P21=+~-+1.m"
 CON_KEY = encrypt.decrypter(encrypt.decrypter(encrypt.decrypter(encrypt.decrypter((__trash.retTr())))))
 
-from_ = "http://127.0.0.1:781"
-# from_ = "https://naijaversaldb.pythonanywhere.com"
+# from_ = "http://127.0.0.1:781"
+from_ = "https://sarahdb.pythonanywhere.com"
 
 link_prefix = f"{from_}/{CON_KEY}/handler"
 
